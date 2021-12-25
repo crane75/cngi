@@ -1,0 +1,97 @@
+{% extends 'cnn/base.html' %}
+{% block headBlock %}
+    <style type="text/css">
+        th {
+          width:200px;
+          }
+    </style>
+{% endblock %}
+
+{% block sesstion-title %}建模任务{% endblock %}
+
+{% block main %}
+<div class="row"  >
+    <form enctype="multipart/form-data" method="post" action="upload_datasets">
+        <p>说明1：</p>
+        <p>1、如果已上传的数据文件列表为空，请点击下方“浏览”按钮选择需要上传的文件，然后点击“上传”按钮上传数据文件，数据文件必须为pcap或者pcapng后缀的文件</p>
+        <p>2、如果需要删除文件列表中的文件，请在文件名左侧的框内勾选，然后点击“删除”按钮。</p>
+        <br>
+        <p>已上传（待训练）的数据文件列表：</p>
+        <div style="overflow-x: auto; overflow-y: auto; height: 250px; width:400px;" class="cols-lg-6">
+            {% csrf_token %}
+
+            <dl>
+                <dd id="files">
+                    {% for filename in filenames %}
+                    <p><input type="checkbox" name="filelists" value="{{ filename }}">&nbsp&nbsp{{ filename }}</p>
+                        {% endfor %}
+                </dd>
+            </dl>
+        </div>
+            <input type="file"  name="datafile" accept='.pcap,.pcapng' value="浏览" >
+            <input type="submit"  value="上传待训练数据文件" >
+            <input type="button" id="btnRemove" value="删除待训练数据文件">
+    </form>
+
+
+</div>
+<br>
+<div>
+    {% csrf_token %}
+    {{form.as_p}}
+    <div class="text-left">
+        <button type="button" id="btnTrain"  >开始训练</button>
+        <p>说明2：</p>
+        <p>1、点击“开始训练"按钮后，系统将在后台执行训练任务，请耐心等待。</p>
+        <p>2、训练完成后，将得到一个模型并保存在系统内部，在下方将显示训练结果</p>
+        <p>3、训练完成得到模型后，您可以点击页面上方“分类任务”菜单执行分类操作</p>
+    </div>
+</div>
+<div><p id="p_output"></p></div>
+{% endblock %}
+
+{% block scriptblock %}
+
+  {% if messages %}
+    {% for message in messages %}
+    <script>
+        alert('{{ message.message }}')
+    </script>
+    {% endfor %}
+{% endif %}
+
+<script>
+$.ajaxSetup({
+    data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+});
+
+$('#btnTrain').click(function () {
+    $.post('train_model',
+        {train_size:$('#id_train_size').val(),
+            batch_size:$('#id_batch_size').val(),
+            stride:$('#id_stride').val(),
+            lr:$('#id_lr').val(),
+            epoch:$('#id_epoch').val()},
+        function(result){
+            $('#p_output').html(result);
+        });
+});
+
+$('#btnRemove').click(function () {
+    if ($("input[name='filelists']:checked").length>0) {
+        if (confirm("请确定是否要删除文件")) {
+            $('input[name="filelists"]:checked').each(function() {
+                $.post('v_remove_train_file',{filename:$(this).val()},function() {
+                    window.location.reload()
+                });
+                })      // end each
+            } //end if
+        } else {
+            alert("请选择需要删除的文件");
+        }  // end if
+})  //end click
+
+
+</script>
+
+{% endblock %}

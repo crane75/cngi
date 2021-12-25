@@ -1,0 +1,75 @@
+{% extends 'cnn/base.html' %}
+
+
+{% block sesstion-title %}分类任务{% endblock %}
+{% block main %}
+
+<!--    {{note}}   -->
+    <form enctype="multipart/form-data" method="post" action="upload_classify_data">
+        <p>说明：</p>
+        <p>1、在“建模任务”执行训练并的到模型后，可以进行分类操作</p>
+        <p>2、请点击“浏览”按钮选择需要分类的数据文件，然后点击“上传”按钮将数据文件上传到服务器。</p>
+        <p>3、点击“分类”按钮进行分类。系统将在后台执行分类计算，需要等待几分钟时间。</p>
+        <p>4、待分类的文件名后最必须为pcap或者pcapng。</p>
+        <br>
+        <p>待分类数据文件：</p>
+
+        <div style="overflow-x: auto; overflow-y: auto; height: 100px; width:400px;" class="cols-lg-6">
+
+        {% csrf_token %}
+        <dl>
+            <dd id="files">
+                {% for filename in filenames %}
+                <p><input type="checkbox" name="filelists" value="{{ filename }}">&nbsp&nbsp{{ filename }}</p>
+                {% endfor %}
+            </dd>
+        </dl>
+        </div>
+            <input type="file"  name="datafile" accept='.pcap,.pcapng' value="浏览" >
+            <input type="submit" id="btnsubmit" value="上传待分类文件">
+            <input type="button" id="btnRemove" value="删除待分类数据文件">
+    </form>
+<button type="button" id="btnClassify" >开始分类</button>
+<div><p id="p_output"></p></div>
+{% endblock %}
+
+
+{% block scriptblock %}
+
+  {% if messages %}
+    {% for message in messages %}
+    <script>
+        alert('{{ message.message }}')
+    </script>
+    {% endfor %}
+{% endif %}
+
+
+<script>
+$.ajaxSetup({
+    data: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+});
+
+$('#btnClassify').click(function () {
+    $.post('v_classify',function (result) {
+        $('#p_output').html(result);
+        }
+    )
+
+});$('#btnRemove').click(function () {
+    if ($("input[name='filelists']:checked").length>0) {
+        if (confirm("请确定是否要删除文件")) {
+            $('input[name="filelists"]:checked').each(function() {
+                $.post('v_remove_classify_file',{filename:$(this).val()},function() {
+                    window.location.reload()
+                });
+                })      // end each
+            } //end if
+        } else {
+            alert("请选择需要删除的文件");
+        }  // end if
+})  //end click
+
+
+</script>
+{% endblock %}

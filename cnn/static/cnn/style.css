@@ -1,0 +1,56 @@
+p {
+    color: yellow;
+    text-align: center;
+    font-size: 1.2em;
+    text-decoration: none;
+    border-style: solid;
+    border-width: 10px;
+    border-color: #FFC0CB;
+    outline-style: solid;
+    outline-color: darkgreen;
+    outline-width: 10px;
+
+}
+
+#menu{
+    text-align: center;
+    background:royalblue;
+    min-width: 400px;
+    height: 2rem;
+    line-height: 2rem;
+    font-size: 1rem;
+}
+
+#menu a {
+    padding: 0 3rem;
+    color: #000;
+    text-decoration: none;
+    font-weight: bold
+}
+
+#menu a:hover{color:#FFC0CB}
+
+p.main_text {
+    text-align-last: center;
+    color: blueviolet;
+    font-size: 3.5em;
+}
+
+#P_id {
+    color: chocolate;
+    text-align: left;
+    text-indent: 50px;
+    font-size: 30px;
+    font-family: 华文隶书;
+    font-style: italic;
+}
+
+
+    a#to_about:link {color: chocolate; background-color: darkgreen}
+    a#to_about:hover {color: blue; background-color: #FFC0CB}
+    a#to_about:active {color: darkgreen; background-color: yellow}
+
+body {
+    background: #abcdef url("top.png") top center no-repeat;
+
+}
